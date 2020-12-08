@@ -46,6 +46,7 @@ public class DialogController : MonoBehaviour
     int currentMessage = 0;
     bool messageCompleted;
     bool canGoNext;
+    bool allowDialog;
 
     public List<Dialog> DialogSequence { get => dialogSequence; set => dialogSequence = value; }
     public string NpcName { get => npcName; set => npcName = value; }
@@ -74,26 +75,18 @@ public class DialogController : MonoBehaviour
         else
             npcDialog.GetComponent<CanvasGroup>().alpha = 1;
 
-
         playerAnim.SetBool("close", false);
         npcAnim.SetBool("close", false);
         playerAnim.SetBool("open", true);
         npcAnim.SetBool("open", true);
 
-
         ShowMessage(false);
+
+        allowDialog = true;
     }
 
     void CloseDialog(bool fullClose)
     {
-        if (fullClose)
-        {
-            dialogPanel.SetActive(false);
-            npcName = "";
-            npcImage = null;
-            dialogSequence = null;
-        }
-
         playerDialog.GetComponent<CanvasGroup>().alpha = 0;
         npcDialog.GetComponent<CanvasGroup>().alpha = 0;
 
@@ -105,33 +98,43 @@ public class DialogController : MonoBehaviour
         playerMessage.text = "";
         npcMessage.text = "";
 
-        player.CanMove = true;
+        if (fullClose)
+        {
+            npcName = "";
+            npcImage = null;
+            dialogSequence = null;
+
+            StopAllCoroutines();
+
+            dialogPanel.SetActive(false);
+        }
+
     }
 
     // Update is called once per frame
     void Update()
     {
-        if (canGoNext && Input.GetKeyDown(KeyCode.Return) && dialogPanel.activeInHierarchy)
+        if (allowDialog)
         {
-            if (messageCompleted) 
-            { 
-                messageCompleted = false;
-                NextMessage();
-            }
-            else
+
+            if (canGoNext && Input.GetKeyDown(KeyCode.Return) && dialogPanel.activeInHierarchy)
             {
-                StopAllCoroutines();
-                ShowMessage(true);
+                if (messageCompleted)
+                {
+                    messageCompleted = false;
+                    NextMessage();
+                }
+                else
+                {
+                    StopAllCoroutines();
+                    ShowMessage(true);
+                }
             }
         }
     }
 
     public void NextMessage()
     {
-        /*
-        playerAnim.enabled = false;
-        npcAnim.enabled = false;
-        */
 
         if (DialogSequence[currentMessage].isEnd)
         {
@@ -200,6 +203,8 @@ public class DialogController : MonoBehaviour
 
     IEnumerator ShowQuestions()
     {
+        allowDialog = false;
+
         playerAnim.SetBool("open", false);
         npcAnim.SetBool("open", false);
         playerAnim.SetBool("close", true);
