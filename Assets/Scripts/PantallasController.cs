@@ -11,6 +11,8 @@ public class PantallasController : MonoBehaviour
     [SerializeField] Image[] pantallas;
     [SerializeField] AudioSource source;
 
+    public PlayerMovement Player { get => player; set => player = value; }
+
     // Start is called before the first frame update
     void Start()
     {
@@ -20,7 +22,7 @@ public class PantallasController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (player.CanMove)
+        if (Player.CanMove)
         {
             if (Input.GetKeyDown(KeyCode.E))
             {

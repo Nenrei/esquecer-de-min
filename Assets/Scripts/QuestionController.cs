@@ -80,16 +80,16 @@ public class QuestionController : MonoBehaviour
 
         UpdateSelection();
 
-        canDoSomething = true;
         checkingAnswer = false;
 
+        canDoSomething = true;
     }
 
 
     // Update is called once per frame
     void Update()
     {
-        if (!checkingAnswer)
+        if (!checkingAnswer && canDoSomething)
         {
             if (Input.GetKeyDown(KeyCode.W) || Input.GetKeyDown(KeyCode.UpArrow))
             {
@@ -115,13 +115,7 @@ public class QuestionController : MonoBehaviour
                 checkingAnswer = true;
                 CheckAnswer();
             }
-        }/*else if (canDoSomething && Input.GetKeyDown(KeyCode.Return))
-        {
-            if (currentQuestion < 2)
-                StartCoroutine(NextQuestion());
-            else
-                CloseQuestion();
-        }*/
+        }
     }
 
     void UpdateSelection()
@@ -146,31 +140,23 @@ public class QuestionController : MonoBehaviour
                 answersObjects[i].GetComponent<Image>().sprite = incorrectColor;
         }
 
-        //feedback.gameObject.SetActive(true);
-        //next.gameObject.SetActive(true);
-
         if (isCorrectAnswer)
         {
             source.PlayOneShot(correct);
-
-            //feedback.text = "Moi ben!";
             PlayerPrefs.SetInt("correctAnswers", PlayerPrefs.GetInt("correctAnswers") + 1);
             correctAnswers++;
-
         }
         else
         {
             source.PlayOneShot(wrong);
-            //feedback.text = "Ui, que pena";
         }
         canAutoNext = true;
         Invoke("AutoNextQuestion", 2);
-
     }
 
     void AutoNextQuestion()
     {
-        if (!canAutoNext) return;
+        if (!canAutoNext || !canDoSomething) return;
 
         if (currentQuestion < 2)
             StartCoroutine(NextQuestion());
@@ -181,11 +167,9 @@ public class QuestionController : MonoBehaviour
 
     IEnumerator NextQuestion()
     {
-        canAutoNext = false;
         canDoSomething = false;
+        canAutoNext = false;
         yield return new WaitForSeconds(0.5f);
-        //feedback.gameObject.SetActive(false);
-        //next.gameObject.SetActive(false);
         checkingAnswer = false;
         int nextQuestion = currentQuestion + 1;
         ShowQuestion(nextQuestion);
@@ -193,6 +177,7 @@ public class QuestionController : MonoBehaviour
 
     void CloseQuestion()
     {
+        canDoSomething = false;
         canAutoNext = false;
 
         currentQuestion = 0;
@@ -205,17 +190,18 @@ public class QuestionController : MonoBehaviour
 
         Questions = null;
 
-        player.CanMove = true;
 
         if (correctAnswers >= 2)
             Npc.gameObject.GetComponent<TurnToPantalla>().Turn();
         else
+        {
+            player.CanMove = true;
             Npc.CanTalk = false;
+        }
 
         correctAnswers = 0;
 
         gameObject.SetActive(false);
-
     }
 
 }

@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class TurnToPantalla : MonoBehaviour
 {
+    
     [SerializeField] int index;
     [SerializeField] PantallasController pantallaCtrl;
     [SerializeField] Transform glow;
@@ -93,8 +94,12 @@ public class TurnToPantalla : MonoBehaviour
 
         PlayerPrefs.SetInt("pantallas", PlayerPrefs.GetInt("pantallas") + 1);
 
+
         if (gameObject.name != "Player")
+        {
+            pantallaCtrl.Player.CanMove = true;
             gameObject.SetActive(false);
+        }
         else
             pantalla.gameObject.SetActive(false);
 
